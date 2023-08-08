@@ -26,12 +26,18 @@ public class CarsBgCrawler {
 
             for (Element offerItem : offerItems) {
                 String title = offerItem.select(".card__title.observable").text();
-                String price = offerItem.select(".card__title.price").text();
-                String make = "Mercedes-Benz"; // Since we're targeting Mercedes-Benz
-                String model = title.substring(title.indexOf("Mercedes-Benz") + 14); // Extract the model from the title
+                String price = offerItem.select(".card__title.mdc-typography.mdc-typography--headline6.price").text();
+                String make = "Mercedes-Benz";
+                String model = title.substring(title.indexOf("Mercedes-Benz") + 14);
+
+                System.out.println("Title: " + title);
+                System.out.println("Price: " + price);
+                System.out.println("Model: " + model);
 
                 insertAdData(connection, make, model, price);
             }
+
+
 
             connection.close();
             System.out.println("Ads inserted into the database successfully.");
@@ -41,25 +47,14 @@ public class CarsBgCrawler {
     }
 
     private static void insertAdData(Connection connection, String make, String model, String price) throws SQLException {
-        System.out.println("Price before cleaning: " + price);
+        System.out.println("Price extracted from ad: " + price);
 
-        // Clean up price value by removing non-numeric and non-dot characters
-        String cleanedPrice = price.replaceAll("[^0-9.]", "");
-
-        System.out.println("Price after cleaning: " + cleanedPrice);
-
-        if (!cleanedPrice.isEmpty()) {
-            String insertQuery = "INSERT INTO car_ads (make, model, price) VALUES (?, ?, ?)";
-            try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
-                preparedStatement.setString(1, make);
-                preparedStatement.setString(2, model);
-                preparedStatement.setString(3, cleanedPrice);
-                preparedStatement.executeUpdate();
-            }
-        } else {
-            System.out.println("Skipping empty price.");
+        String insertQuery = "INSERT INTO car_ads (make, model, price) VALUES (?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+            preparedStatement.setString(1, make);
+            preparedStatement.setString(2, model);
+            preparedStatement.setString(3, price);
+            preparedStatement.executeUpdate();
         }
     }
-
-
 }
