@@ -2,16 +2,26 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.List;
+import java.util.Properties;
 
 public class MobileBgWebCrawler {
 
     public static void main(String[] args) {
-        String dbUrl = "jdbc:mysql://localhost:3306/car_ads_db?useUnicode=true&characterEncoding=UTF-8";
-        String dbUser = "root";
-        String dbPassword = "databasepassword";
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream("C:\\Users\\sepre\\OneDrive\\Desktop\\JavaProjects\\CrawlingMobileBG\\src\\main\\resources\\config.properties")) {
+            properties.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        String dbUrl = properties.getProperty("dbUrl");
+        String dbUser = properties.getProperty("dbUser");
+        String dbPassword = properties.getProperty("dbPassword");
 
         try {
             int totalPages = getTotalPages();
