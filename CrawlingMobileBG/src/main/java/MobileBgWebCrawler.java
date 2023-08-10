@@ -3,16 +3,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 public class MobileBgWebCrawler {
 
     public static void main(String[] args) {
-        String dbUrl = "jdbc:mysql://localhost:3306/car_ads_db";
+        String dbUrl = "jdbc:mysql://localhost:3306/car_ads_db?useUnicode=true&characterEncoding=UTF-8";
         String dbUser = "root";
         String dbPassword = "databasepassword";
 
@@ -33,6 +30,7 @@ public class MobileBgWebCrawler {
                             String make = titleParts[0];
                             String model = titleParts.length > 1 ? titleParts[1] : "";
 
+                            connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                             statement.setString(1, make);
                             statement.setString(2, model);
                             statement.setString(3, adListing.getPrice());
