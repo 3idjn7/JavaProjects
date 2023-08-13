@@ -24,3 +24,4 @@ public class PageScraper {
         return adListings;
     }
 }
+

@@ -15,3 +15,4 @@ public class AdListing {
         return price;
     }
 }
+
