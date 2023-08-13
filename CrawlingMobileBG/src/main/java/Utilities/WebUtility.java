@@ -8,19 +8,19 @@ import java.io.IOException;
 
 public class WebUtility {
 
-    public static int getTotalPages(String url) {
+    public static int getTotalPages(String baseUrl) {
         try {
-            Document document = Jsoup.connect(url).get();
+            Document document = Jsoup.connect(baseUrl).get();
             Element totalPagesInfo = document.selectFirst("span.pageNumbersInfo b");
 
             if (totalPagesInfo != null) {
-                String totalPagesText = totalPagesInfo.text()
-                        .replaceAll("[^0-9]+", "");
-
-                try {
-                    return Integer.parseInt(totalPagesText);
-                } catch (NumberFormatException e) {
-                    System.err.println("Error converting total pages text to integer: " + totalPagesText);
+                String totalPagesText = totalPagesInfo.text();
+                String[] parts = totalPagesText.split(" ");
+                if (parts.length >= 4) {
+                    int totalPages = Integer.parseInt(parts[3]);
+                    return totalPages;
+                } else {
+                    System.err.println("Total pages info format unexpected.");
                 }
             } else {
                 System.err.println("Total pages info element not found.");
