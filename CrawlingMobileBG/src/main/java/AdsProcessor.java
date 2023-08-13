@@ -1,4 +1,6 @@
+import Utilities.AdListing;
 import Utilities.DatabaseUtility;
+import Utilities.PageScraper;
 import Utilities.WebUtility;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,7 +41,7 @@ public class AdsProcessor {
                     List<AdListing> adListings = PageScraper.scrapeAdsFromPage(document);
                     try (Connection connection = DatabaseUtility.getConnection(properties)) { // Create a new connection within the lambda
                         for (AdListing adListing : adListings) {
-                            String adTitle = adListing.getTitle();
+                            String adTitle = adListing.title();
                             String[] titleParts = adTitle.split(" ", 2);
                             String make = titleParts[0];
                             String model = titleParts.length > 1 ? titleParts[1] : "";
@@ -61,7 +63,7 @@ public class AdsProcessor {
                                         try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
                                             statement.setString(1, make);
                                             statement.setString(2, model);
-                                            statement.setString(3, adListing.getPrice());
+                                            statement.setString(3, adListing.price());
 
                                             if (!isDatabaseNew) {
                                                 statement.setBoolean(4, true); // Set new_flag to true for new ads
@@ -109,7 +111,7 @@ public class AdsProcessor {
 
                 try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
                     for (AdListing adListing : adsToAdd) {
-                        String adTitle = adListing.getTitle();
+                        String adTitle = adListing.title();
                         String[] titleParts = adTitle.split(" ", 2);
                         String make = titleParts[0];
                         String model = titleParts.length > 1 ? titleParts[1] : "";
@@ -117,7 +119,7 @@ public class AdsProcessor {
                         if (!isAdExistsInDatabase(connection, make, model)) {
                             statement.setString(1, make);
                             statement.setString(2, model);
-                            statement.setString(3, adListing.getPrice());
+                            statement.setString(3, adListing.price());
 
                             if (!isDatabaseNew) {
                                 statement.setBoolean(4, true); // Set new_flag to true for new ads

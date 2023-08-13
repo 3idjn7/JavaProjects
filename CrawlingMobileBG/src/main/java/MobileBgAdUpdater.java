@@ -1,23 +1,23 @@
-import Utilities.DatabaseUtility;
-import Utilities.ThreadManager;
-import Utilities.WebUtility;
+import Utilities.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MobileBgAdUpdater {
 
     public static void main(String[] args) {
         Properties properties = DatabaseUtility.loadDatabaseProperties("C:\\Users\\sepre\\OneDrive\\Desktop\\JavaProjects\\CrawlingMobileBG\\src\\main\\resources\\config.properties");
         System.out.println("Starting ad checking and updating process...");
-        checkAndUpdateAds(properties);
+        int newAdsAdded = checkAndUpdateAds(properties);
         System.out.println("Ad checking and updating process completed.");
+        System.out.println("Number of new ads added: " + newAdsAdded);
     }
 
-    public static void checkAndUpdateAds(Properties properties) {
+    public static int checkAndUpdateAds(Properties properties) {
         System.out.println("Fetching existing ads from the database...");
         Set<String> existingAds = getExistingAdsFromDatabase(properties);
 
@@ -25,6 +25,7 @@ public class MobileBgAdUpdater {
         System.out.println("Total pages to process: " + totalPages);
 
         int numThreads = 5;
+        AtomicInteger newAdsAdded = new AtomicInteger(); // Counter for new ads added
 
         ThreadManager threadManager = new ThreadManager(numThreads);
 
@@ -33,31 +34,38 @@ public class MobileBgAdUpdater {
 
             threadManager.executeTask(() -> {
                 System.out.println("Processing page: " + url);
-                processPage(url, properties, existingAds);
+                int adsAdded = processPage(url, properties, existingAds);
+                synchronized (MobileBgAdUpdater.class) {
+                    newAdsAdded.addAndGet(adsAdded);
+                }
             });
         }
 
         threadManager.shutdown();
 
         System.out.println("Checking for new ads and updating the database completed.");
+        return newAdsAdded.get(); // Return the total count of new ads added
     }
 
-    private static void processPage(String url, Properties properties, Set<String> existingAds) {
+    private static int processPage(String url, Properties properties, Set<String> existingAds) {
         Document document;
+        int adsAdded = 0; // Counter for new ads added
+
         try {
             document = Jsoup.connect(url).execute().charset("UTF-8").parse();
         } catch (IOException e) {
             System.err.println("Error connecting to URL: " + e.getMessage());
-            return;
+            return adsAdded;
         }
 
         List<AdListing> newAdListings = PageScraper.scrapeAdsFromPage(document);
         List<AdListing> adsToAdd = new ArrayList<>();
 
         for (AdListing newAd : newAdListings) {
-            if (!existingAds.contains(newAd.getTitle())) {
+            if (!existingAds.contains(newAd.title())) {
                 adsToAdd.add(newAd);
-                existingAds.add(newAd.getTitle());
+                existingAds.add(newAd.title());
+                adsAdded++; // Increment the counter for new ads added
             }
         }
 
@@ -66,13 +74,13 @@ public class MobileBgAdUpdater {
                 String sql = "INSERT INTO car_ads (make, model, price, new_flag) VALUES (?, ?, ?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(sql)) {
                     for (AdListing adListing : adsToAdd) {
-                        String[] titleParts = adListing.getTitle().split(" ", 2);
+                        String[] titleParts = adListing.title().split(" ", 2);
                         String make = titleParts[0];
                         String model = titleParts.length > 1 ? titleParts[1] : "";
 
                         statement.setString(1, make);
                         statement.setString(2, model);
-                        statement.setString(3, adListing.getPrice());
+                        statement.setString(3, adListing.price());
                         statement.setBoolean(4, true);
                         statement.executeUpdate();
                     }
@@ -81,6 +89,8 @@ public class MobileBgAdUpdater {
                 e.printStackTrace();
             }
         }
+
+        return adsAdded; // Return the count of new ads added for this page
     }
 
     private static Set<String> getExistingAdsFromDatabase(Properties properties) {
@@ -102,4 +112,3 @@ public class MobileBgAdUpdater {
         return existingAds;
     }
 }
-

@@ -17,8 +17,7 @@ public class WebUtility {
                 String totalPagesText = totalPagesInfo.text();
                 String[] parts = totalPagesText.split(" ");
                 if (parts.length >= 4) {
-                    int totalPages = Integer.parseInt(parts[3]);
-                    return totalPages;
+                    return Integer.parseInt(parts[3]);
                 } else {
                     System.err.println("Total pages info format unexpected.");
                 }
