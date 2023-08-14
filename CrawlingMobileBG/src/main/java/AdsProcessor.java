@@ -13,8 +13,11 @@ import java.util.concurrent.*;
 public class AdsProcessor {
 
     private static final int THREAD_COUNT = 5;
+    private static int totalAdsProcessed = 0;
+    private static int totalAdsAdded = 0;
 
     public static void main(String[] args) {
+        System.out.println("Accessing database.");
         Properties properties = DatabaseUtility.loadDatabaseProperties("C:\\Users\\sepre\\OneDrive\\Desktop\\JavaProjects\\CrawlingMobileBG\\src\\main\\resources\\config.properties");
         processAds(properties);
     }
@@ -22,58 +25,49 @@ public class AdsProcessor {
     public static void processAds(Properties properties) {
         boolean isDatabaseNew = isDatabaseEmpty(properties);
 
-        String baseUrl = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=td61bn&f1=1";
+        String baseUrl = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tehuex&f1=1";
         int totalPages = WebUtility.getTotalPages(baseUrl);
+        System.out.println("Total pages to process: " + totalPages);
+
+        System.out.println("Activating " + THREAD_COUNT + " threads for maximum warp speed...");
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         List<Future<List<AdListing>>> futures = new ArrayList<>();
-
-        Set<String> processedAds = new HashSet<>(); // To track processed ads
 
         for (int currentPage = 1; currentPage <= totalPages; currentPage++) {
             String url = baseUrl.replace("&f1=1", "&f1=" + currentPage);
 
             futures.add(executor.submit(() -> {
                 try {
-                    System.out.println("Scraping page: " + url);
+                    System.out.println("Processing page: " + url);
                     Document document = Jsoup.connect(url).execute().charset("UTF-8").parse();
 
                     List<AdListing> adListings = PageScraper.scrapeAdsFromPage(document);
-                    try (Connection connection = DatabaseUtility.getConnection(properties)) { // Create a new connection within the lambda
+                    try (Connection connection = DatabaseUtility.getConnection(properties)) {
                         for (AdListing adListing : adListings) {
                             String adTitle = adListing.title();
                             String[] titleParts = adTitle.split(" ", 2);
                             String make = titleParts[0];
                             String model = titleParts.length > 1 ? titleParts[1] : "";
+                            totalAdsProcessed++;
 
-                            String adKey = make + " " + model; // Create a unique key for the ad
+                            if (!isAdExistsInDatabase(connection, make, model)) {
+                                String insertSql = isDatabaseNew ?
+                                        "INSERT INTO car_ads (make, model, price) VALUES (?, ?, ?)" :
+                                        "INSERT INTO car_ads (make, model, price, new_flag) VALUES (?, ?, ?, ?)";
+                                totalAdsAdded++;
+                                System.out.println("Added ad: " + adTitle);
 
-                            synchronized (processedAds) {
-                                if (!processedAds.contains(adKey)) {
-                                    processedAds.add(adKey); // Add the ad to the processed set
+                                try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
+                                    statement.setString(1, make);
+                                    statement.setString(2, model);
+                                    statement.setString(3, adListing.price());
 
-                                    if (isAdExistsInDatabase(connection, make, model)) {
-                                        System.out.println("Duplicate ad found in the database: " + adTitle);
-                                    } else {
-                                        // Rest of your existing code for adding the ad to the database
-                                        String insertSql = isDatabaseNew ?
-                                                "INSERT INTO car_ads (make, model, price) VALUES (?, ?, ?)" :
-                                                "INSERT INTO car_ads (make, model, price, new_flag) VALUES (?, ?, ?, ?)";
-
-                                        try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
-                                            statement.setString(1, make);
-                                            statement.setString(2, model);
-                                            statement.setString(3, adListing.price());
-
-                                            if (!isDatabaseNew) {
-                                                statement.setBoolean(4, true); // Set new_flag to true for new ads
-                                            }
-
-                                            statement.executeUpdate();
-                                        }
+                                    if (!isDatabaseNew) {
+                                        statement.setBoolean(4, true); // Set new_flag to true for new ads
                                     }
-                                } else {
-                                    System.out.println("Duplicate ad skipped: " + adTitle);
+
+                                    statement.executeUpdate();
                                 }
                             }
                         }
@@ -133,8 +127,10 @@ public class AdsProcessor {
                 e.printStackTrace();
             }
         }
-
         System.out.println("Ads processing completed.");
+        System.out.println("Total ads processed: " + totalAdsProcessed);
+        System.out.println("Total ads added: " + totalAdsAdded);
+
     }
 
     private static boolean isDatabaseEmpty(Properties properties) {
