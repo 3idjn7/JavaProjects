@@ -90,7 +90,7 @@ public class MobileBgAdUpdater {
             }
         }
 
-        return adsAdded; // Return the count of new ads added for this page
+        return adsAdded;// Return the count of new ads added for this page
     }
 
     private static Set<String> getExistingAdsFromDatabase(Properties properties) {
