@@ -10,9 +10,11 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static Utilities.ThreadManager.THREAD_COUNT;
+
 public class AdsProcessor {
 
-    private static final int THREAD_COUNT = 5;
+
     private static int totalAdsProcessed = 0;
     private static int totalAdsAdded = 0;
 
@@ -25,8 +27,8 @@ public class AdsProcessor {
     public static void processAds(Properties properties) {
         boolean isDatabaseNew = isDatabaseEmpty(properties);
 
-        String baseUrl = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tehuex&f1=1";
-        int totalPages = WebUtility.getTotalPages(baseUrl);
+
+        int totalPages = WebUtility.getTotalPages();
         System.out.println("Total pages to process: " + totalPages);
 
         System.out.println("Activating " + THREAD_COUNT + " threads for maximum warp speed...");
@@ -34,9 +36,7 @@ public class AdsProcessor {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         List<Future<List<AdListing>>> futures = new ArrayList<>();
 
-        for (int currentPage = 1; currentPage <= totalPages; currentPage++) {
-            String url = baseUrl.replace("&f1=1", "&f1=" + currentPage);
-
+        WebUtility.processPages(totalPages, url -> {
             futures.add(executor.submit(() -> {
                 try {
                     System.out.println("Processing page: " + url);
@@ -84,7 +84,7 @@ public class AdsProcessor {
                     return Collections.emptyList();
                 }
             }));
-        }
+        });
 
         executor.shutdown();
 

@@ -5,23 +5,35 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class ThreadManager {
-     private final ExecutorService executor;
+    public static final int THREAD_COUNT = 5;
 
-     public ThreadManager(int numThreads) {
-         executor = Executors.newFixedThreadPool(numThreads);
-     }
+    private static final ExecutorService executor;
 
-     public void executeTask(Runnable task) {
-         executor.execute(task);
-     }
+    static {
+        executor = Executors.newFixedThreadPool(THREAD_COUNT);
+    }
 
-     public void shutdown() {
-         executor.shutdown();
-         try {
-             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-         } catch (InterruptedException e) {
-             e.printStackTrace();
-         }
-     }
+    private ThreadManager() {
+    }
+
+    public static ThreadManager getInstance() {
+        return ThreadManagerHolder.INSTANCE;
+    }
+
+    public void executeTask(Runnable task) {
+        executor.execute(task);
+    }
+
+    public static void shutdown() {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static class ThreadManagerHolder {
+        private static final ThreadManager INSTANCE = new ThreadManager();
+    }
 }
-

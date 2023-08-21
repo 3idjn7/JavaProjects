@@ -21,31 +21,28 @@ public class MobileBgAdUpdater {
         System.out.println("Fetching existing ads from the database...");
         Set<String> existingAds = getExistingAdsFromDatabase(properties);
 
-        int totalPages = WebUtility.getTotalPages("https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tehuex&f1=1");
+        int totalPages = WebUtility.getTotalPages();
         System.out.println("Total pages to process: " + totalPages);
 
-        int numThreads = 5;
+
         AtomicInteger newAdsAdded = new AtomicInteger(); // Counter for new ads added
 
-        ThreadManager threadManager = new ThreadManager(numThreads);
 
-        for (int currentPage = 1; currentPage <= totalPages; currentPage++) {
-            String url = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tehuex&f1=" + currentPage;
 
-            threadManager.executeTask(() -> {
-                System.out.println("Processing page: " + url);
-                int adsAdded = processPage(url, properties, existingAds);
-                synchronized (MobileBgAdUpdater.class) {
-                    newAdsAdded.addAndGet(adsAdded);
-                }
-            });
-        }
+        WebUtility.processPages(totalPages, url -> ThreadManager.getInstance().executeTask(() -> {
+            System.out.println("Processing page: " + url);
+            int adsAdded = processPage(url, properties, existingAds);
+            synchronized (MobileBgAdUpdater.class) {
+                newAdsAdded.addAndGet(adsAdded);
+            }
+        }));
 
-        threadManager.shutdown();
+        ThreadManager.shutdown();
 
         System.out.println("Checking for new ads and updating the database completed.");
         return newAdsAdded.get(); // Return the total count of new ads added
     }
+
 
     private static int processPage(String url, Properties properties, Set<String> existingAds) {
         Document document;

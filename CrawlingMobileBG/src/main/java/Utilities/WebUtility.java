@@ -5,12 +5,22 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class WebUtility {
 
-    public static int getTotalPages(String baseUrl) {
+    public static final String BASE_URL = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=thlygb";
+
+    public static void processPages(int totalPages, Consumer<String> pageProcessor) {
+        for (int currentPage = 1; currentPage <= totalPages; currentPage++) {
+            String url = BASE_URL + "&f1=" + currentPage;
+            pageProcessor.accept(url);
+        }
+    }
+
+    public static int getTotalPages() {
         try {
-            Document document = Jsoup.connect(baseUrl).get();
+            Document document = Jsoup.connect(BASE_URL).get();
             Element totalPagesInfo = document.selectFirst("span.pageNumbersInfo b");
 
             if (totalPagesInfo != null) {

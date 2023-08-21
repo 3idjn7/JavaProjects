@@ -12,22 +12,16 @@ public class MobileBgWebCrawler {
     public static void main(String[] args) {
         Properties properties = DatabaseUtility.loadDatabaseProperties("C:\\Users\\sepre\\OneDrive\\Desktop\\JavaProjects\\CrawlingMobileBG\\src\\main\\resources\\config.properties");
         System.out.println("Starting data scraping and storing process...");
-        int totalPages = WebUtility.getTotalPages("https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tehuex&f1=1");
+        int totalPages = WebUtility.getTotalPages();
         System.out.println("Total pages to process: " + totalPages);
 
-        int numThreads = 5;
-        ThreadManager threadManager = new ThreadManager(numThreads);
 
-        for (int currentPage = 1; currentPage <= totalPages; currentPage++) {
-            String url = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tehuex&f1=" + currentPage;
+        WebUtility.processPages(totalPages, url -> ThreadManager.getInstance().executeTask(() -> {
+            System.out.println("Processing page: " + url);
+            processPage(url, properties);
+        }));
 
-            threadManager.executeTask(() -> {
-                System.out.println("Processing page: " + url);
-                processPage(url, properties);
-            });
-        }
-
-        threadManager.shutdown();
+        ThreadManager.shutdown();
 
         System.out.println("Data scraping and storing completed successfully.");
     }
