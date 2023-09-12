@@ -19,19 +19,14 @@ public class MobileBgAdUpdater {
 
     public static int checkAndUpdateAds(Properties properties) {
         System.out.println("Fetching existing ads from the database...");
-        Set<String> existingAds = getExistingAdsFromDatabase(properties);
-
         int totalPages = WebUtility.getTotalPages();
         System.out.println("Total pages to process: " + totalPages);
 
-
         AtomicInteger newAdsAdded = new AtomicInteger(); // Counter for new ads added
-
-
 
         WebUtility.processPages(totalPages, url -> ThreadManager.getInstance().executeTask(() -> {
             System.out.println("Processing page: " + url);
-            int adsAdded = processPage(url, properties, existingAds);
+            int adsAdded = processPage(url, properties);
             synchronized (MobileBgAdUpdater.class) {
                 newAdsAdded.addAndGet(adsAdded);
             }
@@ -43,8 +38,7 @@ public class MobileBgAdUpdater {
         return newAdsAdded.get(); // Return the total count of new ads added
     }
 
-
-    private static int processPage(String url, Properties properties, Set<String> existingAds) {
+    private static int processPage(String url, Properties properties) {
         Document document;
         int adsAdded = 0; // Counter for new ads added
 
@@ -56,30 +50,24 @@ public class MobileBgAdUpdater {
         }
 
         List<AdListing> newAdListings = PageScraper.scrapeAdsFromPage(document);
-        List<AdListing> adsToAdd = new ArrayList<>();
 
-        for (AdListing newAd : newAdListings) {
-            if (!existingAds.contains(newAd.title())) {
-                adsToAdd.add(newAd);
-                existingAds.add(newAd.title());
-                adsAdded++; // Increment the counter for new ads added
-            }
-        }
-
-        if (!adsToAdd.isEmpty()) {
+        if (!newAdListings.isEmpty()) {
             try (Connection connection = DatabaseUtility.getConnection(properties)) {
                 String sql = "INSERT INTO car_ads (make, model, price, new_flag) VALUES (?, ?, ?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                    for (AdListing adListing : adsToAdd) {
+                    for (AdListing adListing : newAdListings) {
                         String[] titleParts = adListing.title().split(" ", 2);
                         String make = titleParts[0];
                         String model = titleParts.length > 1 ? titleParts[1] : "";
 
-                        statement.setString(1, make);
-                        statement.setString(2, model);
-                        statement.setString(3, adListing.price());
-                        statement.setBoolean(4, true);
-                        statement.executeUpdate();
+                        if (!isAdExistsInDatabase(connection, make, model)) {
+                            statement.setString(1, make);
+                            statement.setString(2, model);
+                            statement.setString(3, adListing.price());
+                            statement.setBoolean(4, true);
+                            statement.executeUpdate();
+                            adsAdded++; // Increment the counter for new ads added
+                        }
                     }
                 }
             } catch (SQLException e) {
@@ -87,25 +75,23 @@ public class MobileBgAdUpdater {
             }
         }
 
-        return adsAdded;// Return the count of new ads added for this page
+        return adsAdded; // Return the count of new ads added for this page
     }
 
-    private static Set<String> getExistingAdsFromDatabase(Properties properties) {
-        Set<String> existingAds = new HashSet<>();
-        try (Connection connection = DatabaseUtility.getConnection(properties)) {
-            String sql = "SELECT make, model FROM car_ads";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        String make = resultSet.getString("make");
-                        String model = resultSet.getString("model");
-                        existingAds.add(make + " " + model);
-                    }
+    private static boolean isAdExistsInDatabase(Connection connection, String make, String model) {
+        String sql = "SELECT COUNT(*) FROM car_ads WHERE make = ? AND model = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, make);
+            statement.setString(2, model);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int count = resultSet.getInt(1);
+                    return count > 0;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return existingAds;
+        return false;
     }
 }
