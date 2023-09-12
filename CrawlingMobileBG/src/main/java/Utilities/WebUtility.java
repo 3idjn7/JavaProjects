@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 public class WebUtility {
 
-    public static final String BASE_URL = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=thlygb";
+    public static final String BASE_URL = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tqzxar";
 
     public static void processPages(int totalPages, Consumer<String> pageProcessor) {
         for (int currentPage = 1; currentPage <= totalPages; currentPage++) {
