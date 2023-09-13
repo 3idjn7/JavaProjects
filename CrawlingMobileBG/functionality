@@ -1,5 +1,6 @@
 This Java code consists of three classes: AdsProcessor, MobileBgAdUpdater, and MobileBgWebCrawler.
-MobileBgWebCrawler scrapes all ads and saves to database, MobileBgAdUpdater only checks for new ads and AdsProcessor can do both - if database is empty it scrapes all ads and if database has ads in, it checks for any new ones.
+MobileBgWebCrawler scrapes all ads and saves to database, MobileBgAdUpdater only checks for new ads and 
+AdsProcessor can do both - if database is empty it scrapes all ads and if database has ads in, it checks for any new ones.
 Each class has a specific purpose in processing and managing advertisements data from a website called "mobile.bg" 
 and storing it in a database. Here's the break down of each class and its functionality step by step.
 
