@@ -25,7 +25,7 @@ public class MobileBgAdUpdater {
         int totalPages = WebUtility.getTotalPages();
         System.out.println("Total pages to process: " + totalPages);
 
-        AtomicInteger newAdsAdded = new AtomicInteger(); // Counter for new ads added
+        AtomicInteger newAdsAdded = new AtomicInteger();
 
         WebUtility.processPages(totalPages, url -> ThreadManager.getInstance().executeTask(() -> {
             System.out.println("Processing page: " + url);
@@ -38,12 +38,12 @@ public class MobileBgAdUpdater {
         ThreadManager.shutdown();
 
         System.out.println("Checking for new ads and updating the database completed.");
-        return newAdsAdded.get(); // Return the total count of new ads added
+        return newAdsAdded.get();
     }
 
     private static int processPage(String url, Properties properties) {
         Document document;
-        int adsAdded = 0; // Counter for new ads added
+        int adsAdded = 0;
 
         try {
             document = Jsoup.connect(url).execute().charset("UTF-8").parse();
@@ -64,13 +64,13 @@ public class MobileBgAdUpdater {
                         String model = titleParts.length > 1 ? titleParts[1] : "";
                         totalAdsProcessed.incrementAndGet();
 
-                        if (!isAdExistsInDatabase(connection, make, model)) {
+                        if (!ifAdsExistInDatabase(connection, make, model)) {
                             statement.setString(1, make);
                             statement.setString(2, model);
                             statement.setString(3, adListing.price());
                             statement.setBoolean(4, true);
                             statement.executeUpdate();
-                            adsAdded++; // Increment the counter for new ads added
+                            adsAdded++;
                         }
                     }
                 }
@@ -79,10 +79,10 @@ public class MobileBgAdUpdater {
             }
         }
 
-        return adsAdded; // Return the count of new ads added for this page
+        return adsAdded;
     }
 
-    private static boolean isAdExistsInDatabase(Connection connection, String make, String model) {
+    private static boolean ifAdsExistInDatabase(Connection connection, String make, String model) {
         String sql = "SELECT COUNT(*) FROM car_ads WHERE make = ? AND model = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, make);
