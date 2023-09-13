@@ -1,4 +1,3 @@
 rootProject.name = 'CrawlingMobileBG'
-include 'src:main:WiP'
-findProject(':src:main:WiP')?.name = 'WiP'
+
 
