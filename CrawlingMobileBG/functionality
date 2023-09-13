@@ -1,0 +1,75 @@
+This Java code consists of three classes: AdsProcessor, MobileBgAdUpdater, and MobileBgWebCrawler.
+MobileBgWebCrawler scrapes all ads and saves to database, MobileBgAdUpdater only checks for new ads and AdsProcessor can do both - if database is empty it scrapes all ads and if database has ads in, it checks for any new ones.
+Each class has a specific purpose in processing and managing advertisements data from a website called "mobile.bg" 
+and storing it in a database. Here's the break down of each class and its functionality step by step.
+
+AdsProcessor Class:
+1.Main Method (public static void main(String[] args))
+·The program's entry point.
+·It loads database properties from the config.properties file.
+·Checks if the database is empty or not.
+·Depending on whether the database is empty or not, it either processes ads when the database is empty or when it is not empty.
+
+2.processAdsWhenDatabaseIsEmpty(Properties properties) Method
+·This method is called when the database is empty.
+·It gets the total number of pages to scrape from the website.
+·It initializes an ExecutorService with a fixed thread pool size of THREAD_COUNT.
+·It creates a list of Future<List<AdListing>> to store the results of scraping each page in parallel.
+·It iterates through the pages, submitting tasks to the executor to scrape and process ads from each page concurrently.
+·For each page, it connects to the page's URL using Jsoup, scrapes ad listings, and inserts them into the database.
+·It keeps track of the total ads processed and added.
+·Finally, it shuts down the executor and prints out the processing statistics.
+
+3.processAdsWhenDatabaseIsNotEmpty(Properties properties) Method
+·This method is called when the database is not empty.
+·Similar to the previous method, it gets the total number of pages to scrape.
+·It processes each page similarly to the previous method but checks if each ad already exists in the database before inserting it.
+·If an ad is not found in the database, it is inserted with a new_flag set to true.
+·It keeps track of the total ads processed and updated.
+·Finally, it shuts down the executor and prints out the processing statistics.
+
+4.isDatabaseEmpty(Properties properties) Method
+·Checks whether the database is empty by executing a SQL query that counts the number of records in the car_ads table.
+·Returns true if the count is 0; otherwise, it returns false.
+
+5.ifAdsExistsInDatabase(Connection connection, String make, String model) Method
+·Checks whether an ad with a given make and model already exists in the database.
+·It executes a SQL query to count the matching records in the car_ads table.
+·Returns true if no matching records are found (count <= 0); otherwise, it returns false.
+
+
+MobileBgAdUpdater Class:
+1.Main Method (public static void main(String[] args))
+·Loads database properties from config.properties.
+·Initiates the process of checking and updating ads.
+·Prints the number of new ads added and the total ads processed.
+
+2.checkAndUpdateAds(Properties properties) Method
+·Fetches existing ads from the database.
+·Retrieves the total number of pages to process from the website.
+·Processes each page similarly to the AdsProcessor class but only inserts new ads into the database.
+·Keeps track of the number of new ads added.
+·Shuts down the thread manager and returns the count of new ads added.
+
+3.processPage(String url, Properties properties) Method
+·Processes a single page by connecting to its URL using Jsoup and parsing the HTML.
+·Scrapes ad listings from the page and checks if they are new.
+·If a new ad is found, it inserts it into the database.
+·Keeps track of the total ads processed and returns the number of ads added.
+
+4.ifAdsExistInDatabase(Connection connection, String make, String model) Method
+·Similar to the AdsProcessor class, it checks whether an ad with a given make and model already exists in the database.
+
+
+MobileBgWebCrawler Class:
+1.Main Method (public static void main(String[] args))
+·Loads database properties from config.properties.
+·Initiates the process of scraping and storing data from the website.
+·Prints the total ads processed.
+
+2.processPage(String url, Properties properties) Method
+·Connects to a single page's URL using Jsoup and parses the HTML.
+·Scrapes ad listings from the page and inserts them into the database.
+·Keeps track of the total ads processed.
+
+In summary, these three classes work together to scrape and manage advertisements from the "mobile.bg" website and store them in a database.
