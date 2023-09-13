@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.util.List;
 import java.sql.*;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MobileBgWebCrawler {
+
+    private static final AtomicInteger totalAdsProcessed = new AtomicInteger(0);
 
     public static void main(String[] args) {
         Properties properties = DatabaseUtility.loadDatabasePropertiesFromClasspath("config.properties");
@@ -24,6 +27,7 @@ public class MobileBgWebCrawler {
         ThreadManager.shutdown();
 
         System.out.println("Data scraping and storing completed successfully.");
+        System.out.println("Total ads processed: " + totalAdsProcessed);
     }
 
     private static void processPage(String url, Properties properties) {
@@ -44,6 +48,7 @@ public class MobileBgWebCrawler {
                     String[] titleParts = adListing.title().split(" ", 2);
                     String make = titleParts[0];
                     String model = titleParts.length > 1 ? titleParts[1] : "";
+                    totalAdsProcessed.incrementAndGet();
 
                     statement.setString(1, make);
                     statement.setString(2, model);

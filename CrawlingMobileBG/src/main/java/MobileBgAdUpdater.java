@@ -9,12 +9,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MobileBgAdUpdater {
 
+    private static final AtomicInteger totalAdsProcessed = new AtomicInteger(0);
+
     public static void main(String[] args) {
         Properties properties = DatabaseUtility.loadDatabasePropertiesFromClasspath("config.properties");
         System.out.println("Starting ad checking and updating process...");
         int newAdsAdded = checkAndUpdateAds(properties);
         System.out.println("Ad checking and updating process completed.");
         System.out.println("Number of new ads added: " + newAdsAdded);
+        System.out.println("Total ads processed: " + totalAdsProcessed);
     }
 
     public static int checkAndUpdateAds(Properties properties) {
@@ -59,6 +62,7 @@ public class MobileBgAdUpdater {
                         String[] titleParts = adListing.title().split(" ", 2);
                         String make = titleParts[0];
                         String model = titleParts.length > 1 ? titleParts[1] : "";
+                        totalAdsProcessed.incrementAndGet();
 
                         if (!isAdExistsInDatabase(connection, make, model)) {
                             statement.setString(1, make);
