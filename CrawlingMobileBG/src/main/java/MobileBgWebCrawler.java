@@ -10,7 +10,7 @@ import java.util.Properties;
 public class MobileBgWebCrawler {
 
     public static void main(String[] args) {
-        Properties properties = DatabaseUtility.loadDatabaseProperties("C:\\Users\\sepre\\OneDrive\\Desktop\\JavaProjects\\CrawlingMobileBG\\src\\main\\resources\\config.properties");
+        Properties properties = DatabaseUtility.loadDatabasePropertiesFromClasspath("config.properties");
         System.out.println("Starting data scraping and storing process...");
         int totalPages = WebUtility.getTotalPages();
         System.out.println("Total pages to process: " + totalPages);

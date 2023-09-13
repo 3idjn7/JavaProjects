@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MobileBgAdUpdater {
 
     public static void main(String[] args) {
-        Properties properties = DatabaseUtility.loadDatabaseProperties("C:\\Users\\sepre\\OneDrive\\Desktop\\JavaProjects\\CrawlingMobileBG\\src\\main\\resources\\config.properties");
+        Properties properties = DatabaseUtility.loadDatabasePropertiesFromClasspath("config.properties");
         System.out.println("Starting ad checking and updating process...");
         int newAdsAdded = checkAndUpdateAds(properties);
         System.out.println("Ad checking and updating process completed.");

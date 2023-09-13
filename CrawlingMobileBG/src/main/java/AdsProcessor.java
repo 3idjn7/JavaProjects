@@ -20,7 +20,7 @@ public class AdsProcessor {
 
     public static void main(String[] args) {
         System.out.println("Accessing database.");
-        Properties properties = DatabaseUtility.loadDatabaseProperties("C:\\Users\\sepre\\OneDrive\\Desktop\\JavaProjects\\CrawlingMobileBG\\src\\main\\resources\\config.properties");
+        Properties properties = DatabaseUtility.loadDatabasePropertiesFromClasspath("config.properties");
         processAds(properties);
     }
 
