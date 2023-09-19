@@ -6,5 +6,8 @@
 
     <!-- Define a bean -->
     <bean id="myBean" class="com.example.MyBean" />
+    <bean id="anotherBean" class="com.example.AnotherBean">
+        <!-- Set properties or inject dependencies here -->
+    </bean>
 
 </beans>
