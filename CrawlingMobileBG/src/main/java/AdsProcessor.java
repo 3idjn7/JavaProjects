@@ -1,7 +1,4 @@
-import Utilities.AdListing;
-import Utilities.DatabaseUtility;
-import Utilities.PageScraper;
-import Utilities.WebUtility;
+import Utilities.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -10,6 +7,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 import static Utilities.ThreadManager.THREAD_COUNT;
 
@@ -18,9 +16,12 @@ public class AdsProcessor {
     private static final AtomicInteger totalAdsProcessed = new AtomicInteger(0);
     private static final AtomicInteger totalAdsAdded = new AtomicInteger(0);
     private static final AtomicInteger totalAdsUpdated = new AtomicInteger(0);
+    private static final Logger LOGGER = Logger.getLogger(AdsProcessor.class.getName());
+
 
     public static void main(String[] args) {
-        System.out.println("Accessing database.");
+        LOGGER.info("Accessing database.");
+
         Properties properties = DatabaseUtility.loadDatabasePropertiesFromClasspath("config.properties");
         boolean isDatabaseNew = isDatabaseEmpty(properties);
 
@@ -34,7 +35,7 @@ public class AdsProcessor {
     public static void processAdsWhenDatabaseIsEmpty(Properties properties) {
         int totalPages = WebUtility.getTotalPages();
 
-        System.out.println("Activating " + THREAD_COUNT + " threads for maximum warp speed...");
+        LOGGER.info("Activating " + THREAD_COUNT + " threads for maximum warp speed...");
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         List<Future<List<AdListing>>> futures = new ArrayList<>();
@@ -45,7 +46,7 @@ public class AdsProcessor {
                 int addedAdsCount = 0;
                 try {
                     String url = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tqzxar&f1=" + page;
-                    System.out.println("Processing page: " + url);
+                    LOGGER.info("Processing page: " + url);
                     Document document = Jsoup.connect(url).execute().charset("UTF-8").parse();
 
                     List<AdListing> adListings = PageScraper.scrapeAdsFromPage(document);
@@ -68,7 +69,7 @@ public class AdsProcessor {
                             }
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        LOGGER.severe( "SQL error occurred");
                     }
 
                     totalAdsProcessed.addAndGet(adListings.size());
@@ -93,17 +94,17 @@ public class AdsProcessor {
             e.printStackTrace();
         }
 
-        System.out.println("Ads processing completed.");
-        System.out.println("Total pages processed: " + totalPages);
-        System.out.println("Total ads processed: " + totalAdsProcessed);
-        System.out.println("Total ads added: " + totalAdsAdded);
+        LOGGER.info("Ads processing completed.");
+        LOGGER.info("Total pages processed: " + totalPages);
+        LOGGER.info("Total ads processed: " + totalAdsProcessed);
+        LOGGER.info("Total ads added: " + totalAdsAdded);
 
     }
 
     public static void processAdsWhenDatabaseIsNotEmpty(Properties properties) {
         int totalPages = WebUtility.getTotalPages();
 
-        System.out.println("Activating " + THREAD_COUNT + " threads for maximum warp speed...");
+        LOGGER.info("Activating " + THREAD_COUNT + " threads for maximum warp speed...");
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         List<Future<List<AdListing>>> futures = new ArrayList<>();
@@ -114,7 +115,7 @@ public class AdsProcessor {
                 int updatedAdsCount = 0;
                 try {
                     String url = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tqzxar&f1=" + page;
-                    System.out.println("Processing page: " + url);
+                    LOGGER.info("Processing page: " + url);
                     Document document = Jsoup.connect(url).execute().charset("UTF-8").parse();
 
                     List<AdListing> adListings = PageScraper.scrapeAdsFromPage(document);
@@ -140,7 +141,7 @@ public class AdsProcessor {
                             }
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        LOGGER.severe( "SQL error occurred");
                     }
 
                     totalAdsProcessed.addAndGet(adListings.size());
@@ -165,10 +166,10 @@ public class AdsProcessor {
             e.printStackTrace();
         }
 
-        System.out.println("Ads processing completed.");
-        System.out.println("Total pages processed: " + totalPages);
-        System.out.println("Total ads processed: " + totalAdsProcessed);
-        System.out.println("Total ads updated: " + totalAdsUpdated);
+        LOGGER.info("Ads processing completed.");
+        LOGGER.info("Total pages processed: " + totalPages);
+        LOGGER.info("Total ads processed: " + totalAdsProcessed);
+        LOGGER.info( "Total ads updated: " + totalAdsUpdated);
     }
 
     private static boolean isDatabaseEmpty(Properties properties) {
@@ -182,7 +183,7 @@ public class AdsProcessor {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.severe( "SQL error occurred");
         }
         return false;
     }
@@ -199,7 +200,7 @@ public class AdsProcessor {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.severe( "SQL error occurred");
         }
         return true;
     }
