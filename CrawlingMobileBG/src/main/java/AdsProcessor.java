@@ -13,6 +13,7 @@ import static Utilities.ThreadManager.THREAD_COUNT;
 
 public class AdsProcessor {
 
+    private static final String BASE_URL = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tqzxar&f1=";
     private static final AtomicInteger totalAdsProcessed = new AtomicInteger(0);
     private static final AtomicInteger totalAdsAdded = new AtomicInteger(0);
     private static final AtomicInteger totalAdsUpdated = new AtomicInteger(0);
@@ -45,7 +46,7 @@ public class AdsProcessor {
             futures.add(executor.submit(() -> {
                 int addedAdsCount = 0;
                 try {
-                    String url = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tqzxar&f1=" + page;
+                    String url = BASE_URL + page;
                     LOGGER.info("Processing page: " + url);
                     Document document = Jsoup.connect(url).execute().charset("UTF-8").parse();
 
@@ -114,7 +115,7 @@ public class AdsProcessor {
             futures.add(executor.submit(() -> {
                 int updatedAdsCount = 0;
                 try {
-                    String url = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tqzxar&f1=" + page;
+                    String url = BASE_URL + page;
                     LOGGER.info("Processing page: " + url);
                     Document document = Jsoup.connect(url).execute().charset("UTF-8").parse();
 
