@@ -98,10 +98,22 @@ public class OcrService {
             doc.addPage(page);
 
             try (PDPageContentStream contentStream = new PDPageContentStream(doc, page)) {
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                contentStream.setFont(PDType1Font.HELVETICA, 12);
                 contentStream.beginText();
-                contentStream.newLineAtOffset(100, 700);
-                contentStream.showText(text);
+
+                float margin = 100;
+                float yStart = page.getMediaBox().getHeight() - margin;
+                float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
+                float yPosition = yStart;
+                float leading = 1.5f * 12;
+                contentStream.newLineAtOffset(margin, yPosition);
+
+                String[] lines = text.replace("\r", "").split("\n");
+                for(String line : lines) {
+                    contentStream.showText(line);
+                    yPosition -= leading;
+                    contentStream.newLineAtOffset(0, -leading);
+                }
                 contentStream.endText();
             }
             doc.save(filePath);

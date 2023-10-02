@@ -1,9 +1,6 @@
 package bg.jug.academy.ocrexporter.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class OcrText {
@@ -20,6 +17,11 @@ public class OcrText {
         this.id = id;
     }
 
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String extractedText;
+
     public String getExtractedText() {
         return extractedText;
     }
@@ -28,5 +30,5 @@ public class OcrText {
         this.extractedText = extractedText;
     }
 
-    private String extractedText;
+
 }

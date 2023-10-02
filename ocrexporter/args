@@ -1,0 +1,3 @@
+--url=https://i.stack.imgur.com/t3qWG.png --format=db --location=not_used_in_db_case
+--url=https://i.stack.imgur.com/t3qWG.png --format=text --location=extracted.txt
+--url=https://i.stack.imgur.com/t3qWG.png --format=pdf --location=extracted.pdf
