@@ -9,8 +9,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -22,8 +22,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -31,6 +29,8 @@ import java.nio.file.StandardOpenOption;
 
 @Service
 public class OcrService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OcrService.class);
 
     @Value("${ocr.api.key}")
     private String apiKey;
@@ -60,6 +60,8 @@ public class OcrService {
     private String extractTextFromImage(String imageUrl) {
         String apiUrl = "https://api.ocr.space/Parse/Image";
 
+        logger.info("Sending request to OCR API...");
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set("apikey", apiKey);
@@ -72,9 +74,14 @@ public class OcrService {
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<OcrApiResponse> response = restTemplate.postForEntity(apiUrl, request, OcrApiResponse.class);
+
+        logger.info("Received response from OCR API");
+
         if(response.getBody() != null && response.getBody().getParsedResults() != null && !response.getBody().getParsedResults().isEmpty()) {
+            logger.info("Text extracted successfuly");
             return response.getBody().getParsedResults().get(0).getParsedText();
         } else {
+            logger.error("No text parsed from the image");
             throw new RuntimeException("No text parsed from the image");
         }
     }
@@ -104,9 +111,12 @@ public class OcrService {
     }
 
     private void saveAsTextFile(String text, String filePath) {
+        logger.info("Saving extracted text to file...");
         try {
             Files.write(Paths.get(filePath), text.getBytes(), StandardOpenOption.CREATE);
+            logger.info("Text saved successfully to: " + filePath);
         } catch (IOException e) {
+            logger.error("Error writing to text file", e);
             throw new RuntimeException("Error writing to text file", e);
         }
     }
