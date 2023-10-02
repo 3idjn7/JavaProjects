@@ -15,25 +15,34 @@ public class OcrexporterApplication implements ApplicationRunner {
 	@Autowired
 	private OcrService ocrService;
 
+	public OcrexporterApplication(OcrService ocrService) {
+		this.ocrService = ocrService;
+	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(OcrexporterApplication.class, args);
 	}
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		if(!args.containsOption("url") || !args.containsOption("format") || !args.containsOption("location")) {
-			throw new IllegalArgumentException("Required arguments: --url, --format, --location");
-		}
+		validateArguments(args);
 
 		String url = args.getOptionValues("url").get(0);
 		String format = args.getOptionValues("format").get(0);
 		String location = args.getOptionValues("location").get(0);
 
+		ocrService.processFile(url, format, location);
+	}
+
+	private void validateArguments(ApplicationArguments args) {
+		if(!args.containsOption("url") || !args.containsOption("format") || !args.containsOption("location")) {
+			throw new IllegalArgumentException("Required arguments: --url, --format, --location");
+		}
+
+		String format = args.getOptionValues("format").get(0);
+
 		if (!List.of("pdf", "text", "word", "db").contains(format.toLowerCase())) {
 			throw new IllegalArgumentException("Unsupported format: " + format);
 		}
-
-
-		ocrService.processFile(url, format, location);
 	}
 }

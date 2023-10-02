@@ -40,7 +40,6 @@ public class OcrService {
     @Autowired
     private OcrTextRepository ocrTextRepository;
 
-
     public void processFile(String url, String format, String location) {
         String extractedText = extractTextFromImage(url);
 
@@ -149,7 +148,7 @@ public class OcrService {
         logger.info("Saving extracted text to file...");
         try {
             Files.write(Paths.get(filePath), text.getBytes(), StandardOpenOption.CREATE);
-            logger.info("Text saved successfully to: " + filePath);
+            logger.info("Text saved successfully to: {}", filePath);
         } catch (IOException e) {
             logger.error("Error writing to text file", e);
             throw new RuntimeException("Error writing to text file", e);
