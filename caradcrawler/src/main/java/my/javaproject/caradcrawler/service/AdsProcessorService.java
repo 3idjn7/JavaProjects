@@ -144,5 +144,4 @@ public class AdsProcessorService {
         logger.info("Exists by make '{}' and model '{}' and price '{}': {}", make, model, price, exists);
         return exists;
     }
-
 }

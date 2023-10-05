@@ -3,13 +3,16 @@ package my.javaproject.caradcrawler.components;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
 public class WebUtility {
-    private static final String BASE_URL = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=tztn2s";
+
+    @Value("${base.url}")
+    private String BASE_URL;
 
     public String buildUrlForPage(int page) {
         return BASE_URL + "&f1=" + page;
