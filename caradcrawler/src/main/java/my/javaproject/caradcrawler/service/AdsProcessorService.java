@@ -7,14 +7,12 @@ import my.javaproject.caradcrawler.entity.CarAd;
 import my.javaproject.caradcrawler.model.AdListing;
 import my.javaproject.caradcrawler.repository.CarAdRepository;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-
-import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,12 +33,10 @@ public class AdsProcessorService {
     @Autowired
     private WebUtility webUtility;
 
-
     @Async("asyncExecutor")
     @Transactional
     public CompletableFuture<List<AdListing>> processPage(int page, boolean checkForDuplicates) {
-        // Use CompletableFuture.supplyAsync() to perform the processing in a separate thread.
-        // Make sure to handle exceptions appropriately for your use case.
+
         return CompletableFuture.supplyAsync(() -> {
             List<AdListing> adListings = new ArrayList<>();
             try {
@@ -59,7 +55,7 @@ public class AdsProcessorService {
                     // Check if the ad already exists in the database before saving
                     if (checkForDuplicates && existsByMakeAndModelAndPrice(make, model, adListing.getPrice())) {
                         logger.info("Skipping existing ad: Make: {}, Model: {}, Price: {}", make, model, adListing.getPrice());
-                        continue; // skip to next iteration
+                        continue;
                     }
 
                     CarAd carAd = new CarAd();
@@ -76,14 +72,9 @@ public class AdsProcessorService {
             return adListings;
         }).exceptionally(ex -> {
             logger.error("Error in processPage: ", ex);
-            return Collections.emptyList();  // You may want to return an empty list on error, or handle it differently.
+            return Collections.emptyList();
         });
     }
-
-
-
-
-
 
     @Transactional
     public void processAdsWhenDatabaseIsEmpty() {
@@ -129,14 +120,11 @@ public class AdsProcessorService {
         logger.info("Ads processing completed. Total ads processed: {}", totalAdsProcessed.get());
     }
 
-
-
     public boolean isDatabaseEmpty() {
         long count = carAdRepository.count();
         logger.info("Total records in the database: {}", count);
         return carAdRepository.count() == 0;
     }
-
 
     public boolean existsByMakeAndModelAndPrice(String make, String model, String price) {
         List<CarAd> carAds = carAdRepository.findByMakeAndModelAndPrice(make, model, price);
