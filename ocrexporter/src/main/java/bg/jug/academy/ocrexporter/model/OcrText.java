@@ -29,6 +29,4 @@ public class OcrText {
     public void setExtractedText(String extractedText) {
         this.extractedText = extractedText;
     }
-
-
 }

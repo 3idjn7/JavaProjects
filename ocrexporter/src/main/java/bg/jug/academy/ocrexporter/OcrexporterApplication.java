@@ -15,7 +15,11 @@ public class OcrexporterApplication implements ApplicationRunner {
 	@Autowired
 	private OcrService ocrService;
 
-	public OcrexporterApplication(OcrService ocrService) {
+	public OcrexporterApplication() {
+	}
+
+	@Autowired
+	public void setOcrService(OcrService ocrService) {
 		this.ocrService = ocrService;
 	}
 
@@ -39,10 +43,12 @@ public class OcrexporterApplication implements ApplicationRunner {
 			throw new IllegalArgumentException("Required arguments: --url, --format, --location");
 		}
 
-		String format = args.getOptionValues("format").get(0);
+		List<String> urlValues = args.getOptionValues("url");
+		List<String> formatValues = args.getOptionValues("format");
+		List<String> locationValues = args.getOptionValues("location");
 
-		if (!List.of("pdf", "text", "word", "db").contains(format.toLowerCase())) {
-			throw new IllegalArgumentException("Unsupported format: " + format);
+		if (urlValues.isEmpty() || formatValues.isEmpty() || locationValues.isEmpty()) {
+			throw new IllegalArgumentException("Values must be provided for --url, --format, --location");
 		}
 	}
 }
