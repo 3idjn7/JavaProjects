@@ -43,7 +43,7 @@ public class OcrApiService {
         body.add("language", "eng");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        RestTemplate restTemplate = new RestTemplate();
+
         try {
             ResponseEntity<OcrApiResponse> response = restTemplate.postForEntity(apiUrl, request, OcrApiResponse.class);
 
