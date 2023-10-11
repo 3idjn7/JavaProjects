@@ -1,178 +1,37 @@
 package bg.jug.academy.ocrexporter.service;
 
 
-
-import bg.jug.academy.ocrexporter.model.OcrApiResponse;
-import bg.jug.academy.ocrexporter.model.OcrText;
-import bg.jug.academy.ocrexporter.repository.OcrTextRepository;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class OcrService {
 
     private static final Logger logger = LoggerFactory.getLogger(OcrService.class);
 
-    @Value("${ocr.api.key}")
-    private String apiKey;
+    @Autowired
+    private OcrApiService ocrApiService;
 
     @Autowired
-    private OcrTextRepository ocrTextRepository;
+    private TextFileProcessor textFileProcessor;
+
+    @Autowired
+    private PdfProcessor pdfProcessor;
+
+    @Autowired
+    private DatabaseProcessor databaseProcessor;
 
     public void processFile(String url, String format, String location) {
-        String extractedText = extractTextFromImage(url);
+        String extractedText = ocrApiService.extractTextFromImage(url);;
 
         switch (format.toLowerCase()) {
-            case "pdf" -> createPdf(extractedText, location);
-            case "text" -> saveAsTextFile(extractedText, location);
-            case "db" -> saveTextToDb(extractedText);
+            case "pdf" -> pdfProcessor.createPdf(extractedText, location);
+            case "text" -> textFileProcessor.saveAsTextFile(extractedText, location);
+            case "db" -> databaseProcessor.saveTextToDb(extractedText);
             default -> throw new UnsupportedOperationException("Unsupported format: " + format);
         }
     }
 
-    private String extractTextFromImage(String imageUrl) {
-        String apiUrl = "https://api.ocr.space/Parse/Image";
-
-        logger.info("Sending request to OCR API...");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("apikey", apiKey);
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("url", imageUrl);
-        body.add("language", "eng");
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            ResponseEntity<OcrApiResponse> response = restTemplate.postForEntity(apiUrl, request, OcrApiResponse.class);
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                logger.info("Received response from OCR API");
-
-                if (response.getBody() != null
-                        && response.getBody().getParsedResults() != null
-                        && !response.getBody().getParsedResults().isEmpty()) {
-
-                    String parsedText = response.getBody().getParsedResults().get(0).getParsedText();
-
-                    if (parsedText == null || parsedText.trim().isEmpty()) {
-                        logger.error("No text found on the image");
-                        throw new RuntimeException("No text found on the image");
-                    }
-
-                    logger.info("Text extracted successfully");
-                    return parsedText;
-
-                } else {
-                    logger.error("No text parsed from the image");
-                    throw new RuntimeException("No text parsed from the image");
-                }
-            } else {
-                    logger.error("Failed API request. Status: {}", response.getStatusCode());
-                    throw new RuntimeException("OCR API request failed with status: " + response.getStatusCode());
-                }
-            } catch(RestClientException e){
-            logger.error("API request failed", e);
-            throw new RuntimeException("Failed to connect ot the OCR API", e);
-        }
-    }
-
-    public void saveTextToDb(String extractedText) {
-        OcrText ocrText = new OcrText();
-        ocrText.setExtractedText(extractedText);
-        ocrTextRepository.save(ocrText);
-    }
-
-    private void createPdf(String text, String filePath) {
-        try (PDDocument doc = new PDDocument()) {
-            PDPage page = new PDPage();
-            doc.addPage(page);
-
-            try (PDPageContentStream contentStream = new PDPageContentStream(doc, page)) {
-                PDType1Font font = PDType1Font.HELVETICA;
-                float fontSize = 12;
-                contentStream.setFont(font, fontSize);
-                contentStream.beginText();
-
-                float margin = 100;
-                float yStart = page.getMediaBox().getHeight() - margin;
-                float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
-                float yPosition = yStart;
-                float leading = 1.5f * fontSize;
-
-                contentStream.newLineAtOffset(margin, yPosition);
-
-                String[] lines = text.replace("\r", "").split("\n");
-                for(String line : lines) {
-                    List<String> linesToDraw = getLinesToDraw(line, tableWidth, font, fontSize);
-                    for (String lineToDraw : linesToDraw) {
-                        contentStream.showText(lineToDraw);
-                        yPosition -= leading;
-                        contentStream.newLineAtOffset(0, -leading);
-                    }
-                }
-
-                contentStream.endText();
-            }
-            doc.save(filePath);
-        } catch (IOException e) {
-            throw new RuntimeException("Error creating PDF", e);
-        }
-    }
-
-    private List<String> getLinesToDraw(String line, float maxWidth, PDType1Font font, float fontSize) throws IOException {
-        List<String> lines = new ArrayList<>();
-        String[] words = line.split(" ");
-        StringBuilder currentLine = new StringBuilder(words[0]);
-        for(int i = 1; i < words.length; i++) {
-            if (getStringWidth(currentLine + " " + words[i], font, fontSize) < maxWidth) {
-                currentLine.append(" ").append(words[i]);
-            } else {
-                lines.add(currentLine.toString());
-                currentLine = new StringBuilder(words[i]);
-            }
-        }
-        lines.add(currentLine.toString());
-        return lines;
-    }
-
-    private float getStringWidth(String text, PDType1Font font, float fontSize) throws IOException {
-        return fontSize * font.getStringWidth(text) / 1000;
-    }
-
-
-    private void saveAsTextFile(String text, String filePath) {
-        logger.info("Saving extracted text to file...");
-        try {
-            Files.write(Paths.get(filePath), text.getBytes(), StandardOpenOption.CREATE);
-            logger.info("Text saved successfully to: {}", filePath);
-        } catch (IOException e) {
-            logger.error("Error writing to text file", e);
-            throw new RuntimeException("Error writing to text file", e);
-        }
-    }
 }

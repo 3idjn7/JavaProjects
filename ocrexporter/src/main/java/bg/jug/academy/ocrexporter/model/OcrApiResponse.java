@@ -17,7 +17,6 @@ public class OcrApiResponse {
         this.parsedResults = parsedResults;
     }
 
-
     public static class ParsedResult {
 
         @JsonProperty("ParsedText")
@@ -30,7 +29,5 @@ public class OcrApiResponse {
         public void setParsedText(String parsedText) {
             this.parsedText = parsedText;
         }
-
-
     }
 }
