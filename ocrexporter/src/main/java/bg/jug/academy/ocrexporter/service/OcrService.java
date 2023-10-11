@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -66,17 +67,37 @@ public class OcrService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<OcrApiResponse> response = restTemplate.postForEntity(apiUrl, request, OcrApiResponse.class);
 
-        ResponseEntity<OcrApiResponse> response = restTemplate.postForEntity(apiUrl, request, OcrApiResponse.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Received response from OCR API");
 
-        logger.info("Received response from OCR API");
+                if (response.getBody() != null
+                        && response.getBody().getParsedResults() != null
+                        && !response.getBody().getParsedResults().isEmpty()) {
 
-        if(response.getBody() != null && response.getBody().getParsedResults() != null && !response.getBody().getParsedResults().isEmpty()) {
-            logger.info("Text extracted successfuly");
-            return response.getBody().getParsedResults().get(0).getParsedText();
-        } else {
-            logger.error("No text parsed from the image");
-            throw new RuntimeException("No text parsed from the image");
+                    String parsedText = response.getBody().getParsedResults().get(0).getParsedText();
+
+                    if (parsedText == null || parsedText.trim().isEmpty()) {
+                        logger.error("No text found on the image");
+                        throw new RuntimeException("No text found on the image");
+                    }
+
+                    logger.info("Text extracted successfully");
+                    return parsedText;
+
+                } else {
+                    logger.error("No text parsed from the image");
+                    throw new RuntimeException("No text parsed from the image");
+                }
+            } else {
+                    logger.error("Failed API request. Status: {}", response.getStatusCode());
+                    throw new RuntimeException("OCR API request failed with status: " + response.getStatusCode());
+                }
+            } catch(RestClientException e){
+            logger.error("API request failed", e);
+            throw new RuntimeException("Failed to connect ot the OCR API", e);
         }
     }
 
