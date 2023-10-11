@@ -18,17 +18,12 @@ public class OcrexporterApplication implements ApplicationRunner {
 	public OcrexporterApplication() {
 	}
 
-	@Autowired
-	public void setOcrService(OcrService ocrService) {
-		this.ocrService = ocrService;
-	}
-
 	public static void main(String[] args) {
 		SpringApplication.run(OcrexporterApplication.class, args);
 	}
 
 	@Override
-	public void run(ApplicationArguments args) throws Exception {
+	public void run(ApplicationArguments args) {
 		validateArguments(args);
 
 		String url = args.getOptionValues("url").get(0);
