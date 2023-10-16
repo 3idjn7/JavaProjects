@@ -35,12 +35,13 @@ public class ToDoController {
 
     @PutMapping("/{id}")
     public ToDo updateToDo(@PathVariable Long id, @RequestBody ToDo todo) {
+        logger.info("Raw ToDo from request body: {}", todo);
         logger.info("Received PUT request to update ToDo with id {}: {}", id, todo);
         Optional<ToDo> optionalToDo = toDoRepository.findById(id);
         if (optionalToDo.isPresent()) {
             ToDo currentToDo = optionalToDo.get();
             currentToDo.setTitle(todo.getTitle());
-            currentToDo.setCompleted(todo.isCompleted());
+            currentToDo.setIsCompleted(todo.getIsCompleted());
             ToDo updatedToDo = toDoRepository.save(currentToDo);
             logger.info("Updated ToDo: {}", updatedToDo);
             return updatedToDo;

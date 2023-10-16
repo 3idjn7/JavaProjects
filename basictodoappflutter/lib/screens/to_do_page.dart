@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../api/api_client.dart';
 import '../widgets/add_todo_dialog.dart';
 import '../widgets/dismissible_todo_item.dart';
-import '../widgets/edit_todo_dialog.dart';
 
 class ToDoPage extends StatefulWidget {
   const ToDoPage({super.key});
@@ -36,6 +35,7 @@ class _ToDoPageState extends State<ToDoPage> {
     try {
       final updatedTodo = await apiClient.updateToDo(
         {
+          'id': todo['id'],
           'title': todo['title'],
           'isCompleted': newValue
         },
