@@ -5,14 +5,14 @@ class AnimatedBottomNav extends StatefulWidget {
   final List<BottomNavItem> items;
   final Function(int) onTap;
 
-  AnimatedBottomNav({
+  const AnimatedBottomNav({super.key, 
     required this.currentIndex,
     required this.items,
     required this.onTap,
   });
 
   @override
-  _AnimatedBottomNavState createState() => _AnimatedBottomNavState();
+  State<AnimatedBottomNav> createState() => _AnimatedBottomNavState();
 }
 
 class _AnimatedBottomNavState extends State<AnimatedBottomNav>
@@ -25,7 +25,7 @@ class _AnimatedBottomNavState extends State<AnimatedBottomNav>
     super.initState();
 
     _controllers = List.generate(widget.items.length,
-        (index) => AnimationController(duration: Duration(milliseconds: 300), vsync: this));
+        (index) => AnimationController(duration: const Duration(milliseconds: 300), vsync: this));
 
     _animations = _controllers.map((controller) => Tween<Offset>(
       begin: const Offset(0, 0),
@@ -46,7 +46,7 @@ class _AnimatedBottomNavState extends State<AnimatedBottomNav>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 60.0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -63,8 +63,8 @@ class _AnimatedBottomNavState extends State<AnimatedBottomNav>
               });
             },
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 300),
-              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               decoration: isSelected
                   ? BoxDecoration(
                       color: item.activeColor,

@@ -5,7 +5,7 @@ class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
@@ -33,9 +33,9 @@ class _SearchPageState extends State<SearchPage> {
             onSubmitted: (value) => _searchOnGoogle(),
             decoration: InputDecoration(
               labelText: 'Google Search',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               suffixIcon: IconButton(
-                icon: Icon(Icons.search),
+                icon: const Icon(Icons.search),
                 onPressed: _searchOnGoogle,
               ),
             ),

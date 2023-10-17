@@ -6,8 +6,7 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
@@ -17,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _timeString = _formatDateTime(DateTime.now());
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) => _getTime());
     super.initState();
   }
 
@@ -44,7 +43,7 @@ class _HomePageState extends State<HomePage> {
     return Center(
       child: Text(
         _timeString,
-        style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
       ),
     );
   }
