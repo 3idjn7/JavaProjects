@@ -1,9 +1,9 @@
 import 'package:animated_bottom_nav/pages/home_page.dart';
 import 'package:animated_bottom_nav/pages/search_page.dart';
+import 'package:animated_bottom_nav/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'ui/animated_bottom_nav.dart';
 
-import 'pages/profile_page.dart';
 
 void main() => runApp(const MyApp());
 
@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
             BottomNavItem(icon: Icons.person),
           ],
         ),
-      )
+      ),
     );
   }
 }
