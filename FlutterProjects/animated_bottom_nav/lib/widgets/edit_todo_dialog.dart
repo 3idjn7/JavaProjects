@@ -11,7 +11,7 @@ class EditToDoDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _EditToDoDialogState createState() => _EditToDoDialogState();
+  State<EditToDoDialog> createState() => _EditToDoDialogState();
 }
 
 class _EditToDoDialogState extends State<EditToDoDialog> {

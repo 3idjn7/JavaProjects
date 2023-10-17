@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../api/api_client.dart';
+import '../logger/logger.dart';
 import '../widgets/add_todo_dialog.dart';
 import '../widgets/dismissible_todo_item.dart';
 
@@ -25,7 +26,7 @@ class _ToDoPageState extends State<ToDoPage> {
       todos = await apiClient.getAllToDos();
       setState(() {});
     } catch (e) {
-      print("Failed to fetch ToDos: $e");
+      logger.e("Failed to fetch ToDos: $e");
     }
   }
 
@@ -46,7 +47,7 @@ class _ToDoPageState extends State<ToDoPage> {
         todos[index] = updatedTodo;
       });
     } catch (e) {
-      print("Failed to update ToDo: $e");
+      logger.e("Failed to update ToDo: $e");
     }
   }
 
@@ -70,7 +71,7 @@ class _ToDoPageState extends State<ToDoPage> {
                   todos.removeWhere((t) => t['id'] == dismissedTodo['id']);
                 });
               } catch (e) {
-                print("Failed to delete ToDo: $e");
+                logger.e("Failed to delete ToDo: $e");
                 // Consider adding user feedback about failure
               }
             },
@@ -94,8 +95,7 @@ class _ToDoPageState extends State<ToDoPage> {
                       todos.add(newTodo);
                     });
                   } catch (e) {
-                    print("Failed to add ToDo: $e");
-                    // Consider adding user feedback about failure
+                    logger.e("Failed to add ToDo: $e");
                   }
                 },
               );

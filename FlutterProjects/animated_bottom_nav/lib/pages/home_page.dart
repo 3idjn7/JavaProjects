@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-              padding: EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(15.0),
               decoration: BoxDecoration(
                 color: Colors.grey.withOpacity(0.3),
                 shape: BoxShape.rectangle,
@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 10),
-            Text(formattedDate, style: TextStyle(fontSize: 20)),
+            Text(formattedDate, style: const TextStyle(fontSize: 20)),
             const SizedBox(height: 20),
             InkWell(
               onTap: () {

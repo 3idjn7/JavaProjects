@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../logger/logger.dart';
+
 class ApiClient {
   final String baseUrl;
 
@@ -16,15 +18,15 @@ class ApiClient {
   }
 
   Future<Map> createToDo(Map todo) async {
-    print('Attempting to create ToDo: $todo');
+    logger.i('Attempting to create ToDo: $todo');
     final response = await http.post(
       Uri.parse('$baseUrl/api/todos'),
       headers: {"Content-Type": "application/json"},
       body: json.encode(todo),
     );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    logger.i('Response status: ${response.statusCode}');
+    logger.i('Response body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 201) { // 201 is for created
       return json.decode(response.body);
@@ -35,7 +37,7 @@ class ApiClient {
 
 
   Future<Map> updateToDo(Map todo, int id) async {
-    print('Attempting to update ToDo: $todo');
+    logger.i('Attempting to update ToDo: $todo');
     final response = await http.put(
       Uri.parse('$baseUrl/api/todos/$id'),
       headers: {"Content-Type": "application/json"},
@@ -49,7 +51,7 @@ class ApiClient {
   }
 
   Future<void> deleteToDo(int id) async {
-    print('Attempting to delete ToDo: $id');
+    logger.i('Attempting to delete ToDo: $id');
     final response = await http.delete(
       Uri.parse('$baseUrl/api/todos/$id'),
     );
