@@ -1,5 +1,9 @@
+import 'package:animated_bottom_nav/pages/home_page.dart';
+import 'package:animated_bottom_nav/pages/search_page.dart';
 import 'package:flutter/material.dart';
-import 'animated_bottom_nav.dart';
+import 'ui/animated_bottom_nav.dart';
+
+import 'pages/profile_page.dart';
 
 void main() => runApp(const MyApp());
 
@@ -15,9 +19,9 @@ class _MyAppState extends State<MyApp> {
   int _currentIndex = 0;
 
   final _pages = [
-    const Center(child: Text('Home')),
-    const Center(child: Text('Search')),
-    const Center(child: Text('Profile')),
+    const HomePage(),
+    SearchPage(),
+    const ProfilePage(),
   ];
 
   @override
