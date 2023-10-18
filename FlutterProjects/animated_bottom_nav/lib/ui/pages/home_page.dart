@@ -1,4 +1,5 @@
 import 'package:animated_bottom_nav/ui/pages/to_do_page.dart';
+import 'package:animated_bottom_nav/weather_app/pages/weather_page.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -67,6 +68,9 @@ class _HomePageState extends State<HomePage> {
           _buildToDoButton(),
           const SizedBox(height: 10),
           const Text('ToDo App'),
+          _buildWeatherAppButton(),
+          const SizedBox(height: 10),
+          const Text('Weather App'),
         ],
       ),
     );
@@ -111,6 +115,28 @@ class _HomePageState extends State<HomePage> {
         ),
         child: const Center(
           child: Icon(Icons.check_box, size: 40),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWeatherAppButton() {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const WeatherPage()),
+        );
+      },
+      child: Container(
+        width: 80,
+        height: 80,
+        decoration: const BoxDecoration(
+          color: Colors.grey,
+          shape: BoxShape.circle,
+        ),
+        child: const Center(
+          child: Icon(Icons.sunny, size: 40),
         ),
       ),
     );

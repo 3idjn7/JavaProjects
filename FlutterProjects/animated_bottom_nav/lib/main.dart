@@ -1,8 +1,9 @@
-// ignore_for_file: prefer_const_constructors
+
 
 import 'package:animated_bottom_nav/ui/pages/home_page.dart';
 import 'package:animated_bottom_nav/ui/pages/search_page.dart';
 import 'package:animated_bottom_nav/ui/pages/profile_page.dart';
+import 'package:animated_bottom_nav/weather_app/pages/weather_page.dart';
 import 'package:flutter/material.dart';
 import 'ui/animated_bottom_nav.dart';
 
@@ -22,6 +23,7 @@ class _MyAppState extends State<MyApp> {
     const HomePage(),
     const SearchPage(),
     const ProfilePage(),
+    const WeatherPage(),
   ];
 
   @override
