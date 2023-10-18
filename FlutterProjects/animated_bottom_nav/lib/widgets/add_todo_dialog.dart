@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class AddToDoDialog extends StatefulWidget {
   final Function(String) onAdd;
 
@@ -10,8 +9,7 @@ class AddToDoDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _AddToDoDialogState createState() => _AddToDoDialogState();
+  State<AddToDoDialog> createState() => _AddToDoDialogState();
 }
 
 class _AddToDoDialogState extends State<AddToDoDialog> {
@@ -20,28 +18,50 @@ class _AddToDoDialogState extends State<AddToDoDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('New ToDo'),
-      content: TextField(
-        controller: controller,
-        decoration: const InputDecoration(hintText: "ToDo Title"),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            if (controller.text.isNotEmpty) {
-              widget.onAdd(controller.text);
-              Navigator.of(context).pop();
-            }
-          },
-          child: const Text('Add'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Cancel'),
-        ),
-      ],
+      title: _buildDialogTitle(),
+      content: _buildTextField(),
+      actions: _buildDialogActions(),
     );
+  }
+
+  Text _buildDialogTitle() {
+    return const Text('New ToDo');
+  }
+
+  TextField _buildTextField() {
+    return TextField(
+      controller: controller,
+      decoration: const InputDecoration(hintText: "ToDo Title"),
+    );
+  }
+
+  List<Widget> _buildDialogActions() {
+    return [
+      _buildAddButton(),
+      _buildCancelButton(),
+    ];
+  }
+
+  TextButton _buildAddButton() {
+    return TextButton(
+      onPressed: _handleAddPressed,
+      child: const Text('Add'),
+    );
+  }
+
+  TextButton _buildCancelButton() {
+    return TextButton(
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+      child: const Text('Cancel'),
+    );
+  }
+
+  void _handleAddPressed() {
+    if (controller.text.isNotEmpty) {
+      widget.onAdd(controller.text);
+      Navigator.of(context).pop();
+    }
   }
 }

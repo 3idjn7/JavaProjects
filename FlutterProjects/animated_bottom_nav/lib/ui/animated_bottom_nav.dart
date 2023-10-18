@@ -5,7 +5,8 @@ class AnimatedBottomNav extends StatefulWidget {
   final List<BottomNavItem> items;
   final Function(int) onTap;
 
-  const AnimatedBottomNav({super.key, 
+  const AnimatedBottomNav({
+    super.key,
     required this.currentIndex,
     required this.items,
     required this.onTap,
@@ -23,15 +24,21 @@ class _AnimatedBottomNavState extends State<AnimatedBottomNav>
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
+  }
 
-    _controllers = List.generate(widget.items.length,
-        (index) => AnimationController(duration: const Duration(milliseconds: 300), vsync: this));
+  void _initializeAnimations() {
+    _controllers = List.generate(
+        widget.items.length,
+        (index) => AnimationController(
+            duration: const Duration(milliseconds: 300), vsync: this));
 
-    _animations = _controllers.map((controller) => Tween<Offset>(
-      begin: const Offset(0, 0),
-      end: const Offset(0, -0.1),
-    ).animate(controller)).toList();
-
+    _animations = _controllers
+        .map((controller) => Tween<Offset>(
+              begin: const Offset(0, 0),
+              end: const Offset(0, -0.1),
+            ).animate(controller))
+        .toList();
 
     _controllers[widget.currentIndex].value = 1.0;
   }
@@ -50,39 +57,43 @@ class _AnimatedBottomNavState extends State<AnimatedBottomNav>
       height: 60.0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: widget.items.map((item) {
-          int index = widget.items.indexOf(item);
-          bool isSelected = widget.currentIndex == index;
-
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _controllers[widget.currentIndex].reverse();
-                widget.onTap(index);
-                _controllers[index].forward();
-              });
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              decoration: isSelected
-                  ? BoxDecoration(
-                      color: item.activeColor,
-                      borderRadius: BorderRadius.circular(30.0),
-                    )
-                  : null,
-              child: SlideTransition(
-                position: _animations[index],
-                child: Icon(
-                  item.icon,
-                  color: isSelected ? Colors.white : item.inactiveColor,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
+        children: widget.items.map(_buildNavItem).toList(),
       ),
     );
+  }
+
+  Widget _buildNavItem(BottomNavItem item) {
+    int index = widget.items.indexOf(item);
+    bool isSelected = widget.currentIndex == index;
+
+    return GestureDetector(
+      onTap: () => _handleNavItemTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        decoration: isSelected
+            ? BoxDecoration(
+                color: item.activeColor,
+                borderRadius: BorderRadius.circular(30.0),
+              )
+            : null,
+        child: SlideTransition(
+          position: _animations[index],
+          child: Icon(
+            item.icon,
+            color: isSelected ? Colors.white : item.inactiveColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleNavItemTap(int index) {
+    setState(() {
+      _controllers[widget.currentIndex].reverse();
+      widget.onTap(index);
+      _controllers[index].forward();
+    });
   }
 }
 

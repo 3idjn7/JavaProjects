@@ -1,6 +1,8 @@
-import 'package:animated_bottom_nav/pages/home_page.dart';
-import 'package:animated_bottom_nav/pages/search_page.dart';
-import 'package:animated_bottom_nav/pages/profile_page.dart';
+// ignore_for_file: prefer_const_constructors
+
+import 'package:animated_bottom_nav/ui/pages/home_page.dart';
+import 'package:animated_bottom_nav/ui/pages/search_page.dart';
+import 'package:animated_bottom_nav/ui/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'ui/animated_bottom_nav.dart';
 
@@ -26,20 +28,20 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: _pages[_currentIndex],
-        bottomNavigationBar: AnimatedBottomNav(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: [
-            BottomNavItem(icon: Icons.home),
-            BottomNavItem(icon: Icons.search),
-            BottomNavItem(icon: Icons.person),
-          ],
-        ),
+          body: _pages[_currentIndex],
+          bottomNavigationBar: AnimatedBottomNav(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            items: [
+              BottomNavItem(icon: Icons.home),
+              BottomNavItem(icon: Icons.search),
+              BottomNavItem(icon: Icons.person),
+            ],
+          ),
       ),
     );
   }

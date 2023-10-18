@@ -27,7 +27,7 @@ class _SearchPageState extends State<SearchPage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(35.0),
           child: TextField(
             controller: _searchController,
             onSubmitted: (value) => _searchOnGoogle(),
