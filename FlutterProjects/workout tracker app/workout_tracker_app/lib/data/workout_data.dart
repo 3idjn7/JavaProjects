@@ -119,7 +119,10 @@ class WorkoutData extends ChangeNotifier {
   Map<DateTime, int> heatMapDataSet = {};
 
   void loadHeatMap() {
+    print("loadHeatMap() called");
+
     DateTime startDate = createDateTimeObject(getStartDate());
+    print("Start date: $startDate");
 
     //count the number of days to load
     int daysInBetween = DateTime.now().difference(startDate).inDays;
@@ -129,9 +132,11 @@ class WorkoutData extends ChangeNotifier {
     for (int i = 0; i < daysInBetween + 1; i++) {
       String yyyymmdd =
           convertDateTimeToYYYYMMDD(startDate.add(Duration(days: i)));
+      print("Processing date: $yyyymmdd");
 
       //completion status = 0 or 1
       int completionStatus = db.getCompletionStatus(yyyymmdd);
+      print("Completion status for $yyyymmdd: $completionStatus");
 
       // year
       int year = startDate.add(Duration(days: i)).year;
@@ -149,5 +154,6 @@ class WorkoutData extends ChangeNotifier {
       // add to the heat map dataset
       heatMapDataSet.addEntries(percentForEachDay.entries);
     }
+    print("Heatmap dataset now: $heatMapDataSet");
   }
 }

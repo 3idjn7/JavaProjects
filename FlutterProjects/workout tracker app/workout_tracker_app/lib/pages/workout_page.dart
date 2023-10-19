@@ -13,6 +13,7 @@ class WorkoutPage extends StatefulWidget {
 
 class _WorkoutPageState extends State<WorkoutPage> {
   void onCheckBoxChanged(String workoutName, String exerciseName) {
+    print("Checking off exercise: $exerciseName for workout: $workoutName");
     Provider.of<WorkoutData>(context, listen: false)
         .checkOffExercise(workoutName, exerciseName);
   }
@@ -60,6 +61,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
   void save() {
     String newExerciseName = exerciseNameController.text;
+    print("Adding new exercise: $newExerciseName");
     String weight = weightController.text;
     String reps = repsController.text;
     String sets = setsController.text;

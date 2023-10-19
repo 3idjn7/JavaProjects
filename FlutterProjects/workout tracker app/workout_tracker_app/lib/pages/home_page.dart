@@ -12,10 +12,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   void initState() {
     super.initState();
+    print("Initializing workout list...");
 
     Provider.of<WorkoutData>(context, listen: false).initializeWorkoutList();
   }
@@ -45,6 +45,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void goToWorkoutPage(String workoutName) {
+    print("Navigating to workout page for: $workoutName");
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -56,6 +57,7 @@ class _HomePageState extends State<HomePage> {
 
   void save() {
     String newWorkoutName = newWorkoutNameController.text;
+    print("Adding new workout: $newWorkoutName");
     Provider.of<WorkoutData>(context, listen: false).addWorkout(newWorkoutName);
 
     Navigator.pop(context);
@@ -87,6 +89,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             //HEAT MAP
             MyHeatMap(
+                key: ValueKey(value.getWorkoutList().length),
                 datasets: value.heatMapDataSet,
                 startDateYYYYMMDD: value.getStartDate()),
 

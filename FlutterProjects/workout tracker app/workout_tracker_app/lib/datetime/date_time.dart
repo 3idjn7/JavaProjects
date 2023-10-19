@@ -46,7 +46,7 @@ String convertDateTimeToYYYYMMDD(DateTime dateTime) {
   }
 
   //day in the format dd
-  String day = dateTime.month.toString();
+  String day = dateTime.day.toString();
   if (day.length == 1) {
     day = '0$day';
   }
