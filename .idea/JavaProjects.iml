@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/ToDoApp/basictodoappflutter/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/ToDoApp/basictodoappflutter/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/ToDoApp/basictodoappflutter/build" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/animated_bottom_nav/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/animated_bottom_nav/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/animated_bottom_nav/build" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/flutterspringdemo/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/flutterspringdemo/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/flutterspringdemo/build" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/incrementdecrement/increment_decrement/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/incrementdecrement/increment_decrement/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/incrementdecrement/increment_decrement/build" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/loginscreen/login_screen/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/loginscreen/login_screen/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/loginscreen/login_screen/build" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/minimal weather app/minimal_weather_app/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/minimal weather app/minimal_weather_app/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/minimal weather app/minimal_weather_app/build" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/workout tracker app/workout_tracker_app/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/workout tracker app/workout_tracker_app/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/FlutterProjects/workout tracker app/workout_tracker_app/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
