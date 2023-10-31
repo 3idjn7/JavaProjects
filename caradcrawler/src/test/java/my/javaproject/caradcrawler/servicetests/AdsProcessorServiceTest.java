@@ -1,64 +1,104 @@
 package my.javaproject.caradcrawler.servicetests;
 
-import my.javaproject.caradcrawler.components.PageScraper;
-import my.javaproject.caradcrawler.components.WebUtility;
+import jakarta.transaction.Transactional;
 import my.javaproject.caradcrawler.model.AdListing;
 import my.javaproject.caradcrawler.repository.CarAdRepository;
 import my.javaproject.caradcrawler.service.AdsProcessorService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
+@SpringBootTest(properties = "classpath:application-test.properties")
+@ActiveProfiles("test")
 public class AdsProcessorServiceTest {
 
-    @Mock
-    private CarAdRepository carAdRepository;
-
-    @Mock
-    private PageScraper pageScraper;
-
-    @Mock
-    private WebUtility webUtility;
-
-    @InjectMocks
+    @Autowired
     private AdsProcessorService adsProcessorService;
 
-    @Test
-    public void testProcessPageWithoutDuplicateCheck() throws ExecutionException, InterruptedException, IOException {
-        // Arrange
-        int page = 1;
-        boolean checkForDuplicates = false;
+    @Autowired
+    private CarAdRepository carAdRepository;
 
-        AdListing adListing = new AdListing("TestCar 1", "$1000");
+    @BeforeEach
+    public void setup() {
 
-        when(webUtility.buildUrlForPage(anyInt())).thenReturn("http://example.com");
-        when(pageScraper.scrapeAdsFromPage(any())).thenReturn(List.of(adListing));
-
-        // Act
-        CompletableFuture<List<AdListing>> resultFuture = adsProcessorService.processPage(page, checkForDuplicates);
-        List<AdListing> result = resultFuture.get();
-
-        // Assert
-        verify(webUtility).buildUrlForPage(page);
-        verify(pageScraper).scrapeAdsFromPage(any());
-        assertFalse(result.isEmpty());
-        assertEquals("TestCar 1", result.get(0).getTitle());
     }
 
-}
+    @AfterEach
+    public void cleanup() {
 
+    }
+    @Transactional
+    @Test
+    public void testIsDatabaseEmpty() {
+        boolean result = adsProcessorService.isDatabaseEmpty();
+        assertFalse(result, "Expected the test database not to be empty.");
+    }
+
+    @Test
+    public void testProcessPage() throws ExecutionException, InterruptedException {
+        int testPage = 1;
+        boolean checkForDuplicates = false;
+
+        List<AdListing> result = adsProcessorService.processPage(testPage, checkForDuplicates).get();
+
+        assertNotNull(result, "Expected the result to be not null.");
+        assertFalse(result.isEmpty(), "Expected to have ads listings.");
+    }
+
+    @Test
+    public void testNoDuplicateAds() throws ExecutionException, InterruptedException {
+        int testPage = 1;
+        boolean checkForDuplicates = true;
+
+        List<AdListing> result = adsProcessorService.processPage(testPage, checkForDuplicates).get();
+
+        // Ensure all ads are distinct by their IDs (or another unique field)
+        long uniqueAdsCount = result.stream().distinct().count();
+        assertEquals(result.size(), uniqueAdsCount, "Expected no duplicate ads listings.");
+    }
+
+    @Test
+    public void testValidAdListings() throws ExecutionException, InterruptedException {
+        int testPage = 1;
+        boolean checkForDuplicates = false;
+
+        List<AdListing> result = adsProcessorService.processPage(testPage, checkForDuplicates).get();
+
+        // Ensure each ad listing has valid data, e.g., non-empty title, valid price, etc.
+        for (AdListing ad : result) {
+            assertNotNull(ad.getTitle(), "Expected title to be not null.");
+
+            // Convert price to int and check
+            String cleanedPrice = ad.getPrice().replaceAll("[^0-9]", "");  // Remove non-digit characters
+
+            try {
+                int price = Integer.parseInt(cleanedPrice);
+                assertTrue(price > 0, "Expected price to be greater than 0.");
+            } catch (NumberFormatException e) {
+                fail("Price '" + ad.getPrice() + "' is not a valid number.");
+            }
+        }
+    }
+
+
+
+    @Test
+    public void testAdsCountInDatabase() throws ExecutionException, InterruptedException {
+        long initialCount = carAdRepository.count();
+        int testPage = 1;
+        boolean checkForDuplicates = false;
+
+        adsProcessorService.processPage(testPage, checkForDuplicates).get();
+
+        long afterProcessCount = carAdRepository.count();
+        assertTrue(afterProcessCount > initialCount, "Expected the count of ads in database to increase.");
+    }
+}
